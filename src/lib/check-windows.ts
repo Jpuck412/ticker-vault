@@ -1,0 +1,3 @@
+export interface TimedEvent{newsAt?:string;ignitionAt:string;qualified:boolean;}
+export interface CheckWindow{minuteOfDay:number;events:number;qualified:number;rate:number;}
+export function rankCheckWindows(events:TimedEvent[],bucketMinutes=5):CheckWindow[]{const m=new Map<number,{events:number;qualified:number}>();for(const e of events){const d=new Date(e.newsAt??e.ignitionAt);const minute=d.getUTCHours()*60+d.getUTCMinutes();const b=Math.floor(minute/bucketMinutes)*bucketMinutes;const x=m.get(b)??{events:0,qualified:0};x.events++;if(e.qualified)x.qualified++;m.set(b,x);}return [...m].map(([minuteOfDay,x])=>({minuteOfDay,...x,rate:x.events?x.qualified/x.events:0})).sort((a,b)=>b.rate-a.rate||b.qualified-a.qualified);}
