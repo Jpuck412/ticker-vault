@@ -1,0 +1,5 @@
+create table if not exists market_events(id uuid primary key default gen_random_uuid(),symbol text not null,ignition_at timestamptz not null,session text not null,quality char(1) not null check(quality in('A','B','C','D')),created_at timestamptz default now());
+create index if not exists market_events_symbol_time on market_events(symbol,ignition_at);
+create table if not exists catalysts(id uuid primary key default gen_random_uuid(),event_id uuid references market_events(id) on delete cascade,published_at timestamptz,type text,source text,verified boolean default false);
+create table if not exists big3_snapshots(id bigint generated always as identity primary key,event_id uuid references market_events(id) on delete cascade,ts timestamptz not null,price double precision,speed_trades_sec double precision,speed_shares_sec double precision,speed_accel double precision,volume_shares_sec double precision,volume_ratio double precision,volume_accel double precision,spread_bps double precision,spread_compression double precision,quote_rate double precision,response_efficiency double precision);
+create index if not exists big3_event_time on big3_snapshots(event_id,ts);
